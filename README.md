@@ -1,56 +1,76 @@
-# Redis - Laravel Application
+# Sistem Reservasi Ruang Asisten
 
-A modern Laravel web application project built with PHP, featuring comprehensive tools for robust application development.
+Platform web untuk manajemen reservasi ruang asisten khusus bagi mahasiswa penyandang disabilitas di universitas. Sistem ini memudahkan mahasiswa untuk melakukan booking ruang, dan membantu asisten dalam manajemen jadwal dan reservasi.
 
-## 🚀 Features
+## 📋 Fitur Utama
 
-- **Laravel Framework**: Full-featured PHP web application framework
-- **Database Support**: Multiple back-ends for session and cache storage
-- **ORM**: Powerful Eloquent database ORM
-- **Migrations**: Database agnostic schema migrations
-- **Job Processing**: Robust background job processing with queue support
-- **Real-time Broadcasting**: Event broadcasting capabilities
-- **Testing**: PHPUnit testing framework configured and ready to use
+### Untuk Mahasiswa
+- **Google OAuth Login**: Login mudah menggunakan akun Google
+- **Verifikasi Akun**: Pengisian data profil (nama, NIM, jurusan, angkatan, jenis kelamin, kontak WhatsApp)
+- **Reservasi Ruang**: Booking ruang asisten dengan sistem kalender interaktif
+- **Lihat Ketersediaan**: Visualisasi jadwal ruang asisten dan libur nasional
+- **Manajemen Reservasi**: Lihat dan kelola reservasi yang sudah dibuat
 
-## 📋 Tech Stack
+### Untuk Asisten
+- **Dashboard Jadwal**: Melihat semua jadwal ruang dan reservasi
+- **Manajemen Jadwal**: Mengatur jadwal ketersediaan ruang asisten
+- **Tracking Reservasi**: Pantau semua reservasi mahasiswa
 
-- **Backend**: PHP with Laravel Framework
-- **Frontend**: Vue.js via Vite
-- **Database**: Configured for multiple database backends
-- **Package Management**: 
-  - PHP: Composer
-  - JavaScript/CSS: NPM
+### Untuk Admin
+- **Manajemen User**: Verifikasi dan kelola data mahasiswa
+- **Manajemen Staff**: Kelola data asisten dan staff
+- **Statistik & Laporan**: Lihat total user, staff, dan user yang belum terverifikasi
+- **Konfigurasi Kontak**: Atur nomor WhatsApp Contact Person untuk notifikasi
+- **Manajemen Jadwal**: Setup jadwal ketersediaan ruang
 
-## ⚙️ Project Structure
+## 🛠️ Tech Stack
+
+| Bagian | Teknologi |
+|--------|-----------|
+| **Backend** | PHP 8.2+, Laravel 12 |
+| **Frontend** | Vue.js, Vite, Tailwind CSS, Bootstrap 5 |
+| **Database** | SQLite (default), MySQL/PostgreSQL (configurable) |
+| **Authentication** | Google OAuth (Laravel Socialite) |
+| **Package Manager** | Composer (PHP), NPM (Frontend) |
+| **Testing** | PHPUnit |
+
+## 📂 Struktur Project
 
 ```
 redis/
-├── app/                          # Application logic
-├── bootstrap/                    # Application bootstrapping
-├── config/                       # Configuration files
-├── database/                     # Database migrations and seeders
-├── public/                       # Public assets
-├── resources/                    # Views and raw assets
-├── routes/                       # Application routes
-├── storage/                      # Application storage (logs, cache)
-├── tests/                        # Test files
-├── composer.json                 # PHP dependencies
-├── package.json                  # JavaScript dependencies
-├── phpunit.xml                   # PHPUnit configuration
-├── vite.config.js                # Vite configuration for frontend bundling
-└── artisan                       # Laravel command-line interface
+├── app/
+│   ├── Http/Controllers/
+│   │   ├── UserController.php          # Login & verifikasi user
+│   │   ├── ReservationController.php   # Reservasi ruang asisten
+│   │   ├── AdminController.php         # Manajemen admin
+│   │   └── AssistantController.php     # Dashboard asisten
+│   ├── Models/                         # Database models
+│   │   ├── User.php
+│   │   ├── Identity.php               # Data profil mahasiswa
+│   │   ├── Reservation.php
+│   │   ├── Schedule.php
+│   │   ├── Faculty.php & Major.php
+│   │   ├── Holiday.php & Month.php
+│   │   └── ContactPerson.php
+│   └── Mail/                          # Email notifications
+├── resources/                         # Frontend views & assets
+├── database/                          # Migrations & seeders
+├── routes/                            # API & web routes
+├── config/                            # Configuration files
+└── tests/                             # Test files
 ```
 
-## 🛠️ Installation & Setup
+## ⚙️ Instalasi & Setup
 
 ### Prerequisites
-- PHP 8.0 or higher
+- PHP 8.2 atau lebih tinggi
 - Composer
 - Node.js & NPM
+- Database (SQLite, MySQL, atau PostgreSQL)
 
-### Steps
+### Langkah-Langkah
 
-1. **Clone the repository**
+1. **Clone repository**
    ```bash
    git clone https://github.com/frahmnn/redis.git
    cd redis
@@ -66,68 +86,124 @@ redis/
    npm install
    ```
 
-4. **Configure environment**
+4. **Setup environment**
    ```bash
    cp .env.example .env
    php artisan key:generate
    ```
 
-5. **Run database migrations**
+5. **Setup Google OAuth**
+   - Buat project di [Google Cloud Console](https://console.cloud.google.com)
+   - Buat OAuth 2.0 credentials (Client ID & Client Secret)
+   - Tambahkan ke `.env`:
+     ```
+     GOOGLE_CLIENT_ID=your_client_id
+     GOOGLE_CLIENT_SECRET=your_client_secret
+     ```
+
+6. **Setup Calendar API** (untuk libur nasional)
+   - Dapatkan API key dari [Calendarific](https://calendarific.com)
+   - Tambahkan ke `.env`:
+     ```
+     CALENDARIFIC_API_KEY=your_api_key
+     ```
+
+7. **Jalankan database migrations**
    ```bash
    php artisan migrate
    ```
 
-6. **Start development server**
+8. **Mulai development server**
    ```bash
+   # Terminal 1 - Backend
    php artisan serve
+   
+   # Terminal 2 - Frontend (dev)
+   npm run dev
+   
+   # Terminal 3 - Queue listener (untuk background jobs)
+   php artisan queue:listen
    ```
 
-7. **Build frontend assets** (in another terminal)
-   ```bash
-   npm run dev
-   ```
+Atau gunakan command yang sudah disediakan:
+```bash
+npm run dev:all
+```
+
+## 📝 Konfigurasi Penting
+
+- **Database**: Edit `DB_CONNECTION` di `.env` (sqlite, mysql, atau pgsql)
+- **Session**: Disimpan di database (SESSION_DRIVER=database)
+- **Cache**: Menggunakan database (CACHE_STORE=database)
+- **Queue**: Menggunakan database (QUEUE_CONNECTION=database)
+- **Mail**: Default menggunakan log driver (MAIL_MAILER=log)
 
 ## 🧪 Testing
 
-Run PHPUnit tests:
 ```bash
+# Jalankan semua test
 php artisan test
-```
 
-Or directly with PHPUnit:
-```bash
+# Atau dengan PHPUnit langsung
 ./vendor/bin/phpunit
+
+# Run specific test
+php artisan test tests/Unit/UserTest.php
 ```
 
-## 📝 Configuration
+## 🔄 Command Penting
 
-- Environment variables: `.env` (copy from `.env.example`)
-- Database configuration: `config/database.php`
-- Cache configuration: `config/cache.php`
-- Session configuration: `config/session.php`
+| Command | Deskripsi |
+|---------|-----------|
+| `php artisan serve` | Jalankan development server |
+| `php artisan migrate` | Jalankan database migrations |
+| `php artisan tinker` | Interactive shell |
+| `npm run dev` | Mulai Vite dev server (frontend) |
+| `npm run build` | Build frontend untuk production |
+| `php artisan test` | Jalankan test suite |
+| `php artisan queue:listen` | Jalankan queue listener |
 
-## 🔄 Key Commands
-
-| Command | Description |
-|---------|-------------|
-| `php artisan serve` | Start the development server |
-| `php artisan migrate` | Run database migrations |
-| `php artisan tinker` | Interactive shell for testing |
-| `npm run dev` | Start Vite development server |
-| `npm run build` | Build production assets |
-| `php artisan test` | Run test suite |
-
-## 📚 Documentation
+## 📚 Dokumentasi
 
 - [Laravel Documentation](https://laravel.com/docs)
-- [Eloquent ORM](https://laravel.com/docs/eloquent)
-- [Database Migrations](https://laravel.com/docs/migrations)
-- [Queue Jobs](https://laravel.com/docs/queues)
-- [Broadcasting](https://laravel.com/docs/broadcasting)
+- [Laravel Socialite](https://laravel.com/docs/socialite)
+- [Tailwind CSS](https://tailwindcss.com/docs)
+- [Vite](https://vitejs.dev/guide/)
+- [Google OAuth Setup](https://developers.google.com/identity/protocols/oauth2)
 
-## 📄 License
+## 📄 Environment Variables
 
-This project is open source software. Check the LICENSE file for details.
+Key variables di `.env`:
+```env
+APP_NAME=Laravel
+APP_DEBUG=true
+APP_URL=http://localhost
+
+DB_CONNECTION=sqlite          # Database connection
+SESSION_DRIVER=database       # Session storage
+QUEUE_CONNECTION=database     # Queue driver
+
+REDIS_HOST=127.0.0.1         # Redis (optional)
+REDIS_PORT=6379
+
+GOOGLE_CLIENT_ID=your_id
+GOOGLE_CLIENT_SECRET=your_secret
+
+CALENDARIFIC_API_KEY=your_api_key
+```
+
+## 🤝 Kontribusi
+
+Kontribusi sangat diterima! Silakan:
+1. Fork repository ini
+2. Buat branch fitur (`git checkout -b feature/AmazingFeature`)
+3. Commit perubahan (`git commit -m 'Add some AmazingFeature'`)
+4. Push ke branch (`git push origin feature/AmazingFeature`)
+5. Buat Pull Request
+
+## 📄 Lisensi
+
+Project ini dilisensikan di bawah MIT License. Lihat file `LICENSE` untuk detail.
 
 ## 👤 Author
 
@@ -135,4 +211,4 @@ This project is open source software. Check the LICENSE file for details.
 
 ---
 
-**Last Updated**: June 2026
+**Last Updated**: Juni 2026
